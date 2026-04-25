@@ -1690,7 +1690,10 @@
     /* ════════════════════════════════════
        EMAILJS INIT (Replace placeholders)
     ════════════════════════════════════ */
-    emailjs.init("ulg8xR1qEk6aQcvpK");  // ← Replace with your EmailJS public key
+    emailjs.init({
+      publicKey:  "ulg8xR1qEk6aQcvpK",
+      privateKey: "3e5BIr07QekU3zbIvvz5s",
+    });
 
     /* ════════════════════════════════════
        LOADER
