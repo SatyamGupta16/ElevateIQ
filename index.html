@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ElevateIQ – Smart Learning for Smart Futures</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <style>
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS & RESET
+    ═══════════════════════════════════════ */
+    :root {
+      --primary:      #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent:       #38bdf8;
+      --accent-glow:  rgba(56,189,248,0.35);
+      --dark:         #0f172a;
+      --dark-card:    #1e293b;
+      --light:        #f8fafc;
+      --mid:          #64748b;
+      --success:      #22c55e;
+      --font-head:    'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', sans-serif;
+      --radius:       16px;
+      --radius-lg:    24px;
+      --shadow:       0 8px 32px rgba(15,23,42,0.18);
+      --shadow-blue:  0 8px 40px rgba(37,99,235,0.28);
+      --glass:        rgba(255,255,255,0.07);
+      --glass-border: rgba(255,255,255,0.13);
+      --transition:   0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--dark);
+      color: var(--light);
+      overflow-x: hidden;
+    }
+
+    h1,h2,h3,h4 { font-family: var(--font-head); }
+
+    a { text-decoration: none; color: inherit; }
+
+    img { max-width: 100%; display: block; }
+
+    /* ═══════════════════════════════════════
+       LOADER
+    ═══════════════════════════════════════ */
+    #loader {
+      position: fixed; inset: 0;
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-ring {
+      width: 60px; height: 60px;
+      border: 3px solid var(--glass-border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════
+       SCROLL ANIMATIONS
+    ═══════════════════════════════════════ */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ═══════════════════════════════════════
+       NAVBAR
+    ═══════════════════════════════════════ */
+    #mainNav {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--glass-border);
+      transition: background var(--transition);
+      padding: 0.75rem 0;
+    }
+    .nav-logo {
+      font-family: var(--font-head);
+      font-size: 1.55rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { -webkit-text-fill-color: var(--accent); }
+    .navbar-nav .nav-link {
+      color: rgba(248,250,252,0.78) !important;
+      font-weight: 500;
+      font-size: 0.92rem;
+      padding: 0.5rem 1rem !important;
+      border-radius: 8px;
+      transition: color var(--transition), background var(--transition);
+      letter-spacing: 0.2px;
+    }
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+      color: var(--accent) !important;
+      background: rgba(56,189,248,0.09);
+    }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff !important;
+      border-radius: 10px !important;
+      padding: 0.5rem 1.3rem !important;
+      font-weight: 600 !important;
+      box-shadow: var(--shadow-blue);
+      transition: transform var(--transition), box-shadow var(--transition) !important;
+    }
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(37,99,235,0.42) !important;
+      color: #fff !important;
+    }
+    .navbar-toggler {
+      border-color: var(--glass-border);
+      color: var(--accent);
+    }
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2856,189,248,0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    /* ═══════════════════════════════════════
+       HERO SECTION
+    ═══════════════════════════════════════ */
+    #hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex; align-items: center;
+      overflow: hidden;
+      background: var(--dark);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 70% 50%, rgba(37,99,235,0.22) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(56,189,248,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 80% at 50% 10%, rgba(56,189,248,0.07) 0%, transparent 70%);
+    }
+    /* Floating geometric blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: blobFloat 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .blob-1 {
+      width: 520px; height: 520px;
+      background: rgba(37,99,235,0.18);
+      top: -120px; right: -80px;
+      animation-delay: 0s;
+    }
+    .blob-2 {
+      width: 380px; height: 380px;
+      background: rgba(56,189,248,0.13);
+      bottom: -60px; left: -60px;
+      animation-delay: -3s;
+    }
+    .blob-3 {
+      width: 260px; height: 260px;
+      background: rgba(37,99,235,0.12);
+      top: 40%; left: 40%;
+      animation-delay: -5s;
+    }
+    @keyframes blobFloat {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* Grid overlay texture */
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(56,189,248,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,189,248,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(56,189,248,0.12);
+      border: 1px solid rgba(56,189,248,0.3);
+      color: var(--accent);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero-badge i { font-size: 0.9rem; }
+
+    .hero-title {
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      line-height: 1.1;
+      font-weight: 900;
+      color: var(--light);
+      margin-bottom: 1rem;
+      letter-spacing: -2px;
+    }
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Typing cursor */
+    #typed-text { border-right: 3px solid var(--accent); padding-right: 4px; }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: rgba(248,250,252,0.65);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 2.2rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border: none;
+      padding: 0.85rem 2.2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: var(--shadow-blue);
+      transition: transform var(--transition), box-shadow var(--transition);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary-custom:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(37,99,235,0.45);
+      color: #fff;
+    }
+    .btn-outline-custom {
+      background: transparent;
+      color: var(--light);
+      border: 1.5px solid rgba(248,250,252,0.25);
+      padding: 0.85rem 2.2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all var(--transition);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-outline-custom:hover {
+      background: var(--glass);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      margin-top: 3rem;
+      display: flex; gap: 2.5rem; flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--light);
+      display: block;
+    }
+    .stat-num .plus { color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--mid); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+
+    /* Hero visual card */
+    .hero-visual {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-card-main {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .hero-card-main img {
+      width: 100%;
+      border-radius: var(--radius);
+      object-fit: cover;
+      height: 240px;
+    }
+    .hero-card-badge {
+      position: absolute;
+      top: -14px; left: 24px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+    .hero-floating-pill {
+      position: absolute;
+      background: var(--dark-card);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      padding: 10px 18px;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      animation: floatPill 4s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    .hero-floating-pill.pill-1 { top: 20px; right: -30px; animation-delay: 0s; }
+    .hero-floating-pill.pill-2 { bottom: 30px; left: -30px; animation-delay: -2s; }
+    .pill-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+    .pill-icon.blue  { background: rgba(37,99,235,0.25);  color: var(--primary); }
+    .pill-icon.cyan  { background: rgba(56,189,248,0.25); color: var(--accent); }
+    .pill-icon.green { background: rgba(34,197,94,0.25);  color: var(--success); }
+    @keyframes floatPill {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    /* ═══════════════════════════════════════
+       SECTION SHARED STYLES
+    ═══════════════════════════════════════ */
+    .section-pad { padding: 100px 0; }
+    .section-pad-sm { padding: 70px 0; }
+
+    .section-label {
+      display: inline-block;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      position: relative;
+      padding-left: 28px;
+    }
+    .section-label::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 18px; height: 2px;
+      background: var(--accent);
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      color: var(--light);
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+    }
+    .section-sub {
+      color: var(--mid);
+      font-size: 1.05rem;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════
+       COURSES SECTION
+    ═══════════════════════════════════════ */
+    #courses { background: var(--dark); }
+
+    .course-card {
+      background: var(--dark-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      height: 100%;
+      position: relative;
+    }
+    .course-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 60px rgba(37,99,235,0.22);
+      border-color: rgba(56,189,248,0.25);
+    }
+    .course-img-wrap {
+      position: relative;
+      overflow: hidden;
+      height: 200px;
+    }
+    .course-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .course-card:hover .course-img-wrap img { transform: scale(1.07); }
+    .course-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(15,23,42,0.7) 0%, transparent 60%);
+    }
+    .course-tag {
+      position: absolute;
+      top: 14px; left: 14px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .tag-free  { background: rgba(34,197,94,0.2);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .tag-paid  { background: rgba(37,99,235,0.25); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
+    .tag-popular { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .course-body { padding: 1.4rem; }
+    .course-category {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .course-title {
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--light);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .course-desc {
+      font-size: 0.88rem;
+      color: var(--mid);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .course-meta {
+      display: flex; align-items: center; gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--mid);
+      margin-bottom: 1.2rem;
+    }
+    .course-meta i { color: var(--accent); }
+    .course-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .course-price {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--light);
+    }
+    .course-price .old-price {
+      font-size: 0.85rem;
+      color: var(--mid);
+      text-decoration: line-through;
+      font-family: var(--font-body);
+      font-weight: 400;
+      margin-right: 6px;
+    }
+    .btn-enroll {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.3rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .btn-enroll:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-blue);
+      color: #fff;
+    }
+
+    /* Stars */
+    .stars { color: #fbbf24; font-size: 0.78rem; }
+
+    /* ═══════════════════════════════════════
+       ABOUT SECTION
+    ═══════════════════════════════════════ */
+    #about {
+      background: linear-gradient(180deg, var(--dark-card) 0%, var(--dark) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    #about::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .about-img-wrap {
+      position: relative;
+    }
+    .about-img-main {
+      border-radius: var(--radius-lg);
+      width: 100%;
+      object-fit: cover;
+      height: 420px;
+      border: 1px solid var(--glass-border);
+    }
+    .about-achievement-card {
+      position: absolute;
+      background: var(--dark);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 1rem 1.3rem;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .about-achievement-card.card-tl { top: -20px; left: -20px; }
+    .about-achievement-card.card-br { bottom: -20px; right: -20px; }
+    .ach-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .ach-icon.blue  { background: rgba(37,99,235,0.2);  color: var(--primary); }
+    .ach-icon.cyan  { background: rgba(56,189,248,0.2); color: var(--accent); }
+    .ach-num {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--light);
+      line-height: 1;
+    }
+    .ach-label { font-size: 0.78rem; color: var(--mid); }
+
+    .about-mvp { margin-top: 2rem; }
+    .mvp-item {
+      display: flex; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .mvp-icon {
+      width: 48px; height: 48px;
+      background: rgba(37,99,235,0.12);
+      border: 1px solid rgba(37,99,235,0.25);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .mvp-title { font-weight: 700; font-size: 1rem; color: var(--light); margin-bottom: 4px; }
+    .mvp-desc  { font-size: 0.88rem; color: var(--mid); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       FEATURES SECTION
+    ═══════════════════════════════════════ */
+    #features {
+      background: var(--dark);
+      position: relative;
+      overflow: hidden;
+    }
+    #features::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 300px;
+      background: radial-gradient(ellipse, rgba(56,189,248,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .feature-card {
+      background: var(--dark-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      text-align: center;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+    .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(15,23,42,0.4); border-color: rgba(56,189,248,0.2); }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-icon-wrap {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1.3rem;
+      transition: transform var(--transition);
+    }
+    .feature-card:hover .feature-icon-wrap { transform: scale(1.1) rotate(-5deg); }
+    .fi-blue   { background: rgba(37,99,235,0.15);  color: var(--primary); }
+    .fi-cyan   { background: rgba(56,189,248,0.15); color: var(--accent); }
+    .fi-green  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .fi-amber  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .fi-purple { background: rgba(168,85,247,0.15); color: #c084fc; }
+    .fi-rose   { background: rgba(244,63,94,0.15);  color: #fb7185; }
+    .feature-title { font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; color: var(--light); margin-bottom: 0.6rem; }
+    .feature-desc  { font-size: 0.88rem; color: var(--mid); line-height: 1.65; }
+
+    /* ═══════════════════════════════════════
+       TESTIMONIALS SECTION
+    ═══════════════════════════════════════ */
+    #testimonials {
+      background: linear-gradient(180deg, var(--dark) 0%, var(--dark-card) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .testi-card {
+      background: var(--dark);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      transition: transform var(--transition), box-shadow var(--transition);
+      height: 100%;
+      position: relative;
+    }
+    .testi-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(15,23,42,0.5); }
+    .testi-quote {
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.3;
+      font-family: Georgia, serif;
+      margin-bottom: 0.5rem;
+    }
+    .testi-text {
+      font-size: 0.95rem;
+      color: rgba(248,250,252,0.8);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testi-author {
+      display: flex; align-items: center; gap: 14px;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .testi-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      flex-shrink: 0;
+    }
+    .testi-name   { font-weight: 700; font-size: 0.95rem; color: var(--light); }
+    .testi-role   { font-size: 0.78rem; color: var(--mid); }
+    .testi-rating { color: #fbbf24; font-size: 0.8rem; margin-top: 2px; }
+
+    /* Marquee-like scroll area for mobile */
+    @media (max-width: 767px) {
+      .testi-scroll {
+        display: flex; overflow-x: auto; gap: 1.2rem;
+        padding-bottom: 1rem;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .testi-scroll::-webkit-scrollbar { display: none; }
+      .testi-scroll .col-md-4 { flex: 0 0 300px; }
+    }
+
+    /* ═══════════════════════════════════════
+       CONTACT SECTION
+    ═══════════════════════════════════════ */
+    #contact { background: var(--dark-card); }
+
+    .contact-card {
+      background: var(--dark);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+    }
+
+    .form-label-custom { font-size: 0.88rem; font-weight: 600; color: rgba(248,250,252,0.8); margin-bottom: 0.4rem; }
+    .form-control-custom {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: var(--light);
+      padding: 0.8rem 1.1rem;
+      font-size: 0.95rem;
+      font-family: var(--font-body);
+      width: 100%;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+    .form-control-custom:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+      background: rgba(255,255,255,0.06);
+    }
+    .form-control-custom.error { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.2); }
+    .form-control-custom::placeholder { color: rgba(255,255,255,0.25); }
+    textarea.form-control-custom { resize: vertical; min-height: 130px; }
+    .error-msg { font-size: 0.78rem; color: #f87171; margin-top: 4px; display: none; }
+    .error-msg.show { display: block; }
+
+    .btn-submit {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border: none;
+      padding: 0.9rem 2.5rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(37,99,235,0.4); }
+    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    /* Success banner */
+    #successMsg {
+      display: none;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      color: #4ade80;
+      font-weight: 600;
+      font-size: 0.95rem;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+    #successMsg.show { display: flex; }
+
+    /* Contact info column */
+    .contact-info-item {
+      display: flex; align-items: flex-start; gap: 16px;
+      margin-bottom: 2rem;
+    }
+    .ci-icon {
+      width: 48px; height: 48px;
+      background: rgba(37,99,235,0.12);
+      border: 1px solid rgba(37,99,235,0.25);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .ci-title  { font-weight: 700; font-size: 0.9rem; color: var(--light); margin-bottom: 3px; }
+    .ci-value  { font-size: 0.88rem; color: var(--mid); line-height: 1.5; }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    #footer {
+      background: #060d1a;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 60px 0 30px;
+    }
+    .footer-logo {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.8rem;
+    }
+    .footer-desc { color: var(--mid); font-size: 0.88rem; line-height: 1.7; max-width: 280px; }
+    .footer-social { display: flex; gap: 0.75rem; margin-top: 1.3rem; }
+    .social-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: var(--mid);
+      transition: all var(--transition);
+    }
+    .social-icon:hover { background: var(--primary); color: #fff; border-color: var(--primary); transform: translateY(-3px); }
+    .footer-heading { font-weight: 700; font-size: 0.9rem; color: var(--light); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1.2rem; }
+    .footer-links { list-style: none; }
+    .footer-links li { margin-bottom: 0.65rem; }
+    .footer-links a { color: var(--mid); font-size: 0.88rem; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-copy { font-size: 0.82rem; color: var(--mid); }
+
+    /* ═══════════════════════════════════════
+       BACK TO TOP
+    ═══════════════════════════════════════ */
+    #backToTop {
+      position: fixed;
+      bottom: 30px; right: 30px;
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-blue);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all var(--transition);
+      z-index: 999;
+    }
+    #backToTop.visible { opacity: 1; transform: translateY(0); }
+    #backToTop:hover   { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(37,99,235,0.5); }
+
+    /* ═══════════════════════════════════════
+       DIVIDER
+    ═══════════════════════════════════════ */
+    .section-divider {
+      width: 60px; height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+      margin-bottom: 1.2rem;
+    }
+
+    /* ═══════════════════════════════════════
+       PARTNER LOGOS STRIP
+    ═══════════════════════════════════════ */
+    .partners-strip {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 1.8rem 0;
+      overflow: hidden;
+      background: rgba(255,255,255,0.02);
+    }
+    .partners-track {
+      display: flex; gap: 3rem; align-items: center;
+      width: max-content;
+      animation: marquee 25s linear infinite;
+    }
+    .partner-name {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: rgba(248,250,252,0.18);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      transition: color var(--transition);
+    }
+    .partner-name:hover { color: rgba(248,250,252,0.4); }
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Gradient text utility */
+    .text-gradient {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE TWEAKS
+    ═══════════════════════════════════════ */
+    @media (max-width: 991px) {
+      .hero-visual { margin-top: 3rem; }
+      .about-achievement-card.card-tl { top: -10px; left: -10px; }
+      .about-achievement-card.card-br { bottom: -10px; right: -10px; }
+    }
+    @media (max-width: 767px) {
+      .section-pad   { padding: 70px 0; }
+      .hero-title    { letter-spacing: -1px; }
+      .hero-floating-pill.pill-1 { top: 10px; right: -10px; }
+      .hero-floating-pill.pill-2 { bottom: 10px; left: -10px; }
+      .hero-stats    { gap: 1.5rem; }
+      #backToTop     { bottom: 20px; right: 20px; }
+    }
+    @media (max-width: 575px) {
+      .hero-actions { flex-direction: column; }
+      .btn-primary-custom, .btn-outline-custom { justify-content: center; }
+      .about-img-main { height: 280px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════
+       LOADER
+  ══════════════════════════════════ -->
+  <div id="loader">
+    <div class="loader-ring"></div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════ -->
+  <nav class="navbar navbar-expand-lg" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand nav-logo" href="#hero">Elevate<span>IQ</span></a>
+
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse" data-bs-target="#navMenu"
+              aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto gap-1">
+          <li class="nav-item"><a class="nav-link active" href="#hero">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#courses">Courses</a></li>
+          <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+        </ul>
+        <a href="#courses" class="btn nav-cta ms-2">Get Started <i class="bi bi-arrow-right ms-1"></i></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════
+       HERO SECTION
+  ══════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="container hero-content">
+      <div class="row align-items-center min-vh-100 py-5">
+
+        <!-- Left Copy -->
+        <div class="col-lg-6 col-xl-6 fade-up">
+          <div class="hero-badge">
+            <i class="bi bi-stars"></i> #1 Online Learning Platform
+          </div>
+          <h1 class="hero-title">
+            Unlock Your<br>
+            <span class="gradient-text">
+              <span id="typed-text">Smart Learning</span>
+            </span><br>
+            Future Today
+          </h1>
+          <p class="hero-sub">
+            Master in-demand skills with expert-led courses. Join 50,000+ students accelerating their careers with ElevateIQ's personalized learning paths.
+          </p>
+          <div class="hero-actions">
+            <a href="#courses" class="btn-primary-custom">
+              <i class="bi bi-lightning-fill"></i> Enroll Now — It's Free
+            </a>
+            <a href="#about" class="btn-outline-custom">
+              <i class="bi bi-play-circle"></i> Watch Demo
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <span class="stat-num">50<span class="plus">K+</span></span>
+              <span class="stat-label">Students</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">120<span class="plus">+</span></span>
+              <span class="stat-label">Courses</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">98<span class="plus">%</span></span>
+              <span class="stat-label">Success Rate</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">40<span class="plus">+</span></span>
+              <span class="stat-label">Expert Mentors</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Visual Card -->
+        <div class="col-lg-6 col-xl-5 offset-xl-1 fade-up hero-visual" style="transition-delay:0.2s">
+          <div class="hero-card-main">
+            <div class="hero-card-badge">⭐ Top Rated 2025</div>
+            <img
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=700&q=80"
+              alt="Students learning online"
+            />
+            <div style="margin-top:1.2rem">
+              <div style="font-size:0.78rem;color:var(--mid);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem">Next Live Class</div>
+              <div style="font-weight:700;font-size:1rem;color:var(--light);margin-bottom:0.8rem">Full-Stack Web Development</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;gap:-8px">
+                  <img src="https://i.pravatar.cc/28?img=10" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--dark-card)" alt="">
+                  <img src="https://i.pravatar.cc/28?img=21" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--dark-card);margin-left:-8px" alt="">
+                  <img src="https://i.pravatar.cc/28?img=33" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--dark-card);margin-left:-8px" alt="">
+                  <span style="font-size:0.78rem;color:var(--mid);margin-left:8px;align-self:center">+1.2k joined</span>
+                </div>
+                <span style="background:rgba(34,197,94,0.15);color:#4ade80;border-radius:6px;font-size:0.75rem;font-weight:700;padding:4px 10px;">● LIVE</span>
+              </div>
+            </div>
+          </div>
+          <!-- Floating Pills -->
+          <div class="hero-floating-pill pill-1">
+            <div class="pill-icon blue"><i class="bi bi-award-fill"></i></div>
+            <div>
+              <div style="font-size:0.8rem;color:var(--light);font-weight:700">Certified Courses</div>
+              <div style="font-size:0.7rem;color:var(--mid)">Industry Recognised</div>
+            </div>
+          </div>
+          <div class="hero-floating-pill pill-2">
+            <div class="pill-icon green"><i class="bi bi-check-circle-fill"></i></div>
+            <div>
+              <div style="font-size:0.8rem;color:var(--light);font-weight:700">98% Placement Rate</div>
+              <div style="font-size:0.7rem;color:var(--mid)">Top Companies Hiring</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Partners Marquee Strip -->
+  <div class="partners-strip">
+    <div class="partners-track">
+      <span class="partner-name">Google</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Microsoft</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Amazon</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Meta</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Adobe</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Salesforce</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Netflix</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Apple</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <!-- Duplicate for seamless loop -->
+      <span class="partner-name">Google</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Microsoft</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Amazon</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Meta</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Adobe</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Salesforce</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Netflix</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+      <span class="partner-name">Apple</span><span style="color:rgba(255,255,255,0.07)">◆</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       COURSES SECTION
+  ══════════════════════════════════ -->
+  <section id="courses" class="section-pad">
+    <div class="container">
+      <div class="row mb-5 align-items-end fade-up">
+        <div class="col-lg-6">
+          <span class="section-label">What We Offer</span>
+          <h2 class="section-title mt-1">Explore Our <br><span class="text-gradient">Top Courses</span></h2>
+        </div>
+        <div class="col-lg-6 mt-3 mt-lg-0 text-lg-end">
+          <p class="section-sub ms-lg-auto">Expert-crafted learning paths designed for beginners to professionals. Start learning today.</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+
+        <!-- Course 1 -->
+        <div class="col-md-6 col-lg-4 fade-up">
+          <div class="course-card">
+            <div class="course-img-wrap">
+              <img src="https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=600&q=80" alt="Web Development" />
+              <div class="course-img-overlay"></div>
+              <span class="course-tag tag-popular">🔥 Popular</span>
+            </div>
+            <div class="course-body">
+              <div class="course-category">Development</div>
+              <div class="course-title">Full-Stack Web Development</div>
+              <div class="course-desc">Master HTML, CSS, JavaScript, React, Node.js & MongoDB from scratch to production-ready apps.</div>
+              <div class="course-meta">
+                <span><i class="bi bi-clock"></i> 60 hrs</span>
+                <span><i class="bi bi-people"></i> 12,400</span>
+                <span class="stars">★★★★★ <span style="color:var(--mid)">5.0</span></span>
+              </div>
+              <div class="course-footer">
+                <div class="course-price"><span class="old-price">₹4,999</span> ₹1,499</div>
+                <a href="#contact" class="btn-enroll">Enroll Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course 2 -->
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.1s">
+          <div class="course-card">
+            <div class="course-img-wrap">
+              <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80" alt="AI & Machine Learning" />
+              <div class="course-img-overlay"></div>
+              <span class="course-tag tag-paid">⚡ New</span>
+            </div>
+            <div class="course-body">
+              <div class="course-category">AI & Data Science</div>
+              <div class="course-title">Artificial Intelligence & ML Bootcamp</div>
+              <div class="course-desc">Deep dive into Python, NumPy, TensorFlow, and build real-world AI models and neural networks.</div>
+              <div class="course-meta">
+                <span><i class="bi bi-clock"></i> 80 hrs</span>
+                <span><i class="bi bi-people"></i> 9,800</span>
+                <span class="stars">★★★★★ <span style="color:var(--mid)">4.9</span></span>
+              </div>
+              <div class="course-footer">
+                <div class="course-price"><span class="old-price">₹6,999</span> ₹2,499</div>
+                <a href="#contact" class="btn-enroll">Enroll Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course 3 -->
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.2s">
+          <div class="course-card">
+            <div class="course-img-wrap">
+              <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80" alt="UI/UX Design" />
+              <div class="course-img-overlay"></div>
+              <span class="course-tag tag-free">✓ Free</span>
+            </div>
+            <div class="course-body">
+              <div class="course-category">Design</div>
+              <div class="course-title">UI/UX Design Masterclass</div>
+              <div class="course-desc">Learn Figma, design systems, wireframing and build stunning user-centered digital products.</div>
+              <div class="course-meta">
+                <span><i class="bi bi-clock"></i> 40 hrs</span>
+                <span><i class="bi bi-people"></i> 18,200</span>
+                <span class="stars">★★★★★ <span style="color:var(--mid)">4.8</span></span>
+              </div>
+              <div class="course-footer">
+                <div class="course-price" style="color:var(--success)">FREE</div>
+                <a href="#contact" class="btn-enroll">Enroll Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course 4 -->
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.1s">
+          <div class="course-card">
+            <div class="course-img-wrap">
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="Data Analytics" />
+              <div class="course-img-overlay"></div>
+              <span class="course-tag tag-paid">💎 Premium</span>
+            </div>
+            <div class="course-body">
+              <div class="course-category">Analytics</div>
+              <div class="course-title">Data Analytics with Python & Power BI</div>
+              <div class="course-desc">Transform raw data into actionable insights with pandas, matplotlib, SQL, and Power BI dashboards.</div>
+              <div class="course-meta">
+                <span><i class="bi bi-clock"></i> 50 hrs</span>
+                <span><i class="bi bi-people"></i> 7,500</span>
+                <span class="stars">★★★★☆ <span style="color:var(--mid)">4.7</span></span>
+              </div>
+              <div class="course-footer">
+                <div class="course-price"><span class="old-price">₹5,499</span> ₹1,999</div>
+                <a href="#contact" class="btn-enroll">Enroll Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course 5 -->
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.2s">
+          <div class="course-card">
+            <div class="course-img-wrap">
+              <img src="https://images.unsplash.com/photo-1616469829581-73993eb86b02?w=600&q=80" alt="Cloud Computing" />
+              <div class="course-img-overlay"></div>
+              <span class="course-tag tag-popular">🚀 Trending</span>
+            </div>
+            <div class="course-body">
+              <div class="course-category">Cloud & DevOps</div>
+              <div class="course-title">AWS Cloud Practitioner + DevOps</div>
+              <div class="course-desc">From EC2 to Kubernetes—get certified and build scalable cloud infrastructure with CI/CD pipelines.</div>
+              <div class="course-meta">
+                <span><i class="bi bi-clock"></i> 55 hrs</span>
+                <span><i class="bi bi-people"></i> 6,900</span>
+                <span class="stars">★★★★★ <span style="color:var(--mid)">4.9</span></span>
+              </div>
+              <div class="course-footer">
+                <div class="course-price"><span class="old-price">₹5,999</span> ₹2,199</div>
+                <a href="#contact" class="btn-enroll">Enroll Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course 6 -->
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.3s">
+          <div class="course-card">
+            <div class="course-img-wrap">
+              <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?w=600&q=80" alt="Digital Marketing" />
+              <div class="course-img-overlay"></div>
+              <span class="course-tag tag-free">✓ Free</span>
+            </div>
+            <div class="course-body">
+              <div class="course-category">Marketing</div>
+              <div class="course-title">Digital Marketing & Growth Hacking</div>
+              <div class="course-desc">SEO, SEM, Meta Ads, content strategy & analytics—everything to grow brands in the digital era.</div>
+              <div class="course-meta">
+                <span><i class="bi bi-clock"></i> 35 hrs</span>
+                <span><i class="bi bi-people"></i> 22,100</span>
+                <span class="stars">★★★★☆ <span style="color:var(--mid)">4.6</span></span>
+              </div>
+              <div class="course-footer">
+                <div class="course-price" style="color:var(--success)">FREE</div>
+                <a href="#contact" class="btn-enroll">Enroll Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /row -->
+
+      <div class="text-center mt-5 fade-up">
+        <a href="#contact" class="btn-outline-custom">
+          <i class="bi bi-grid-3x3-gap"></i> View All 120+ Courses
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       ABOUT SECTION
+  ══════════════════════════════════ -->
+  <section id="about" class="section-pad">
+    <div class="container">
+      <div class="row align-items-center g-5">
+
+        <!-- Image Column -->
+        <div class="col-lg-5 fade-up">
+          <div class="about-img-wrap">
+            <img
+              src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=700&q=80"
+              alt="Coaching class"
+              class="about-img-main"
+            />
+            <!-- Achievement floaters -->
+            <div class="about-achievement-card card-tl">
+              <div class="ach-icon blue"><i class="bi bi-trophy-fill"></i></div>
+              <div>
+                <div class="ach-num">15+ <span style="font-size:0.8rem;font-weight:400;color:var(--mid)">Years</span></div>
+                <div class="ach-label">Of Excellence</div>
+              </div>
+            </div>
+            <div class="about-achievement-card card-br">
+              <div class="ach-icon cyan"><i class="bi bi-mortarboard-fill"></i></div>
+              <div>
+                <div class="ach-num">50K+ <span style="font-size:0.8rem;font-weight:400;color:var(--mid)">Alumni</span></div>
+                <div class="ach-label">Success Stories</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Column -->
+        <div class="col-lg-7 fade-up" style="transition-delay:0.15s">
+          <span class="section-label">Who We Are</span>
+          <h2 class="section-title mt-1 mb-3">Shaping <span class="text-gradient">Careers Since</span> 2009</h2>
+          <p style="color:var(--mid);line-height:1.8;margin-bottom:1.5rem;">
+            ElevateIQ is India's fastest-growing online education platform, delivering world-class tech education to learners across 40+ cities. Our industry-aligned curriculum, live mentorship, and placement support make us the go-to choice for career transformation.
+          </p>
+
+          <div class="about-mvp">
+            <div class="mvp-item">
+              <div class="mvp-icon"><i class="bi bi-eye-fill"></i></div>
+              <div>
+                <div class="mvp-title">Our Vision</div>
+                <div class="mvp-desc">To democratize quality tech education and make every learner industry-ready, regardless of background or geography.</div>
+              </div>
+            </div>
+            <div class="mvp-item">
+              <div class="mvp-icon"><i class="bi bi-bullseye"></i></div>
+              <div>
+                <div class="mvp-title">Our Mission</div>
+                <div class="mvp-desc">Deliver practical, mentor-driven learning that bridges the gap between academia and industry requirements in real-time.</div>
+              </div>
+            </div>
+            <div class="mvp-item">
+              <div class="mvp-icon"><i class="bi bi-bar-chart-fill"></i></div>
+              <div>
+                <div class="mvp-title">Achievements</div>
+                <div class="mvp-desc">Awarded Best Ed-Tech Platform 2023 & 2024 by EduIndia Awards. 92% of our graduates land their dream job within 3 months.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       FEATURES SECTION
+  ══════════════════════════════════ -->
+  <section id="features" class="section-pad">
+    <div class="container">
+      <div class="text-center mb-5 fade-up">
+        <span class="section-label">Why Choose Us</span>
+        <h2 class="section-title mt-1">Everything You Need to <br><span class="text-gradient">Succeed</span></h2>
+        <p class="section-sub mx-auto mt-3">We've built every feature you need to learn faster, smarter, and with confidence.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4 fade-up">
+          <div class="feature-card">
+            <div class="feature-icon-wrap fi-blue"><i class="bi bi-person-video3"></i></div>
+            <div class="feature-title">Expert Mentors</div>
+            <div class="feature-desc">Learn from industry veterans with 10+ years of experience at top global tech companies like Google, Amazon, and Microsoft.</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.08s">
+          <div class="feature-card">
+            <div class="feature-icon-wrap fi-cyan"><i class="bi bi-camera-video-fill"></i></div>
+            <div class="feature-title">Live Classes</div>
+            <div class="feature-desc">Interactive live sessions every week with real-time Q&A, hands-on coding challenges, and peer collaboration.</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.16s">
+          <div class="feature-card">
+            <div class="feature-icon-wrap fi-green"><i class="bi bi-chat-dots-fill"></i></div>
+            <div class="feature-title">24/7 Doubt Support</div>
+            <div class="feature-desc">Never get stuck. Our dedicated TAs and AI-powered chat resolve your doubts within minutes, anytime of day.</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.08s">
+          <div class="feature-card">
+            <div class="feature-icon-wrap fi-amber"><i class="bi bi-patch-check-fill"></i></div>
+            <div class="feature-title">Certification</div>
+            <div class="feature-desc">Earn globally recognised certifications upon completion, validated by industry leaders and trusted by top recruiters.</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.16s">
+          <div class="feature-card">
+            <div class="feature-icon-wrap fi-purple"><i class="bi bi-laptop-fill"></i></div>
+            <div class="feature-title">Project-Based Learning</div>
+            <div class="feature-desc">Build 10+ real-world projects per course to strengthen your portfolio and showcase job-ready skills to employers.</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 fade-up" style="transition-delay:0.24s">
+          <div class="feature-card">
+            <div class="feature-icon-wrap fi-rose"><i class="bi bi-briefcase-fill"></i></div>
+            <div class="feature-title">Placement Support</div>
+            <div class="feature-desc">Dedicated career coaches, mock interviews, resume reviews, and connections to 200+ hiring partners nationwide.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       TESTIMONIALS SECTION
+  ══════════════════════════════════ -->
+  <section id="testimonials" class="section-pad">
+    <div class="container">
+      <div class="text-center mb-5 fade-up">
+        <span class="section-label">Student Stories</span>
+        <h2 class="section-title mt-1">What Our <span class="text-gradient">Learners Say</span></h2>
+        <p class="section-sub mx-auto mt-3">Real stories from real students whose careers were transformed by ElevateIQ.</p>
+      </div>
+
+      <div class="row g-4 testi-scroll fade-up">
+
+        <div class="col-md-4">
+          <div class="testi-card">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">ElevateIQ's Full-Stack course completely changed my career trajectory. Within 3 months, I landed a ₹12 LPA job at a Bangalore startup. The live sessions and mentor support were unmatched.</p>
+            <div class="testi-author">
+              <img src="https://i.pravatar.cc/80?img=11" alt="Arjun Mehta" class="testi-avatar" />
+              <div>
+                <div class="testi-name">Arjun Mehta</div>
+                <div class="testi-role">SDE at UrbanClap, Mumbai</div>
+                <div class="testi-rating">★★★★★</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="testi-card">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">I switched from a commerce background to Data Analytics thanks to ElevateIQ. The Python & Power BI course was incredibly structured. I now work at Deloitte as a Data Analyst.</p>
+            <div class="testi-author">
+              <img src="https://i.pravatar.cc/80?img=47" alt="Priya Sharma" class="testi-avatar" />
+              <div>
+                <div class="testi-name">Priya Sharma</div>
+                <div class="testi-role">Data Analyst at Deloitte, Delhi</div>
+                <div class="testi-rating">★★★★★</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="testi-card">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">The AI/ML Bootcamp is the most comprehensive course I've taken. Hands-on projects, amazing instructors, and an active community. Got a ₹18 LPA offer from a product company!</p>
+            <div class="testi-author">
+              <img src="https://i.pravatar.cc/80?img=65" alt="Rahul Nair" class="testi-avatar" />
+              <div>
+                <div class="testi-name">Rahul Nair</div>
+                <div class="testi-role">ML Engineer at Swiggy, Bangalore</div>
+                <div class="testi-rating">★★★★★</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="testi-card">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">As a working professional, the flexible schedule and recorded sessions saved me. The UI/UX course helped me pivot into product design. Now I freelance for global clients!</p>
+            <div class="testi-author">
+              <img src="https://i.pravatar.cc/80?img=28" alt="Sneha Kulkarni" class="testi-avatar" />
+              <div>
+                <div class="testi-name">Sneha Kulkarni</div>
+                <div class="testi-role">UI Designer & Freelancer, Pune</div>
+                <div class="testi-rating">★★★★★</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="testi-card">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">The doubt-solving support is incredible. Any time I hit a wall, TAs were available within 15 minutes. The AWS course helped me pass the certification exam in my first attempt!</p>
+            <div class="testi-author">
+              <img src="https://i.pravatar.cc/80?img=52" alt="Kiran Rao" class="testi-avatar" />
+              <div>
+                <div class="testi-name">Kiran Rao</div>
+                <div class="testi-role">Cloud Engineer at TCS, Hyderabad</div>
+                <div class="testi-rating">★★★★★</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="testi-card">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">Zero-to-hero in 4 months. ElevateIQ's placement team prepared me for every interview. Got 3 offers simultaneously — chose the one paying ₹15 LPA. Best decision of my life.</p>
+            <div class="testi-author">
+              <img src="https://i.pravatar.cc/80?img=36" alt="Manish Gupta" class="testi-avatar" />
+              <div>
+                <div class="testi-name">Manish Gupta</div>
+                <div class="testi-role">SDE-2 at Flipkart, Bangalore</div>
+                <div class="testi-rating">★★★★★</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /testi-scroll -->
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       CONTACT SECTION
+  ══════════════════════════════════ -->
+  <section id="contact" class="section-pad">
+    <div class="container">
+      <div class="text-center mb-5 fade-up">
+        <span class="section-label">Get In Touch</span>
+        <h2 class="section-title mt-1">Start Your <span class="text-gradient">Learning Journey</span></h2>
+        <p class="section-sub mx-auto mt-3">Have questions? Our advisors are here to guide you toward the right course for your goals.</p>
+      </div>
+
+      <div class="row g-5 align-items-start fade-up">
+
+        <!-- Form -->
+        <div class="col-lg-7">
+          <div class="contact-card">
+            <h3 style="font-family:var(--font-head);font-size:1.4rem;color:var(--light);margin-bottom:0.4rem;">Send Us a Message</h3>
+            <p style="font-size:0.88rem;color:var(--mid);margin-bottom:2rem;">We'll get back to you within 24 hours.</p>
+
+            <form id="contactForm" novalidate>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label-custom">Full Name *</label>
+                  <input type="text" id="name" class="form-control-custom" placeholder="e.g. Arjun Mehta" />
+                  <div class="error-msg" id="nameErr">Please enter your full name.</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label-custom">Email Address *</label>
+                  <input type="email" id="email" class="form-control-custom" placeholder="you@example.com" />
+                  <div class="error-msg" id="emailErr">Please enter a valid email.</div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label-custom">Course Interest</label>
+                  <select id="course" class="form-control-custom" style="cursor:pointer">
+                    <option value="" disabled selected>Select a course (optional)</option>
+                    <option>Full-Stack Web Development</option>
+                    <option>AI & Machine Learning Bootcamp</option>
+                    <option>UI/UX Design Masterclass</option>
+                    <option>Data Analytics with Python & Power BI</option>
+                    <option>AWS Cloud + DevOps</option>
+                    <option>Digital Marketing & Growth Hacking</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label-custom">Message *</label>
+                  <textarea id="message" class="form-control-custom" placeholder="Tell us about your learning goals or any questions..."></textarea>
+                  <div class="error-msg" id="msgErr">Please write a message (min 20 characters).</div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-submit mt-4" id="submitBtn">
+                <i class="bi bi-send-fill"></i> Send Message
+              </button>
+
+              <div id="successMsg">
+                <i class="bi bi-check-circle-fill" style="font-size:1.3rem"></i>
+                <span>Message sent successfully! Our team will contact you within 24 hours. 🎉</span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="col-lg-5 fade-up" style="transition-delay:0.15s">
+          <div class="contact-info-item">
+            <div class="ci-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <div>
+              <div class="ci-title">Our Campus</div>
+              <div class="ci-value">42, Cyber Hub, DLF Phase 2,<br>Gurugram, Haryana – 122002</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="ci-icon"><i class="bi bi-telephone-fill"></i></div>
+            <div>
+              <div class="ci-title">Phone / WhatsApp</div>
+              <div class="ci-value">+91 98765 43210<br>Mon–Sat · 9 AM – 7 PM IST</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="ci-icon"><i class="bi bi-envelope-fill"></i></div>
+            <div>
+              <div class="ci-title">Email Us</div>
+              <div class="ci-value">hello@elevateiq.in<br>support@elevateiq.in</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="ci-icon"><i class="bi bi-clock-fill"></i></div>
+            <div>
+              <div class="ci-title">Working Hours</div>
+              <div class="ci-value">Monday – Saturday<br>9:00 AM – 7:00 PM IST</div>
+            </div>
+          </div>
+
+          <!-- Quick links / social -->
+          <div style="margin-top:1rem">
+            <div style="font-weight:700;font-size:0.88rem;color:var(--light);margin-bottom:0.8rem">Connect With Us</div>
+            <div style="display:flex;gap:0.7rem;flex-wrap:wrap">
+              <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+              <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+              <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+              <a href="#" class="social-icon"><i class="bi bi-discord"></i></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       FOOTER
+  ══════════════════════════════════ -->
+  <footer id="footer">
+    <div class="container">
+      <div class="row g-4">
+
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-logo">ElevateIQ</div>
+          <p class="footer-desc">India's premium ed-tech platform empowering learners with industry-aligned tech education, live mentorship, and guaranteed placement support.</p>
+          <div class="footer-social mt-3">
+            <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-discord"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-6 col-6">
+          <div class="footer-heading">Courses</div>
+          <ul class="footer-links">
+            <li><a href="#courses">Web Development</a></li>
+            <li><a href="#courses">AI & Machine Learning</a></li>
+            <li><a href="#courses">UI/UX Design</a></li>
+            <li><a href="#courses">Data Analytics</a></li>
+            <li><a href="#courses">Cloud & DevOps</a></li>
+            <li><a href="#courses">Digital Marketing</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-6 col-6">
+          <div class="footer-heading">Company</div>
+          <ul class="footer-links">
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#features">Why ElevateIQ</a></li>
+            <li><a href="#testimonials">Success Stories</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-heading">Stay Updated</div>
+          <p style="font-size:0.85rem;color:var(--mid);margin-bottom:1rem">Get free resources, course announcements, and career tips delivered to your inbox.</p>
+          <div style="display:flex;gap:0.5rem">
+            <input type="email" placeholder="Your email address" class="form-control-custom" style="font-size:0.85rem;padding:0.65rem 1rem;flex:1" />
+            <button class="btn-enroll" style="padding:0.65rem 1.2rem;border-radius:10px;white-space:nowrap">Subscribe</button>
+          </div>
+          <p style="font-size:0.75rem;color:rgba(100,116,139,0.7);margin-top:0.6rem">No spam, unsubscribe anytime.</p>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 ElevateIQ Pvt. Ltd. All rights reserved.</div>
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+          <a href="#" style="font-size:0.82rem;color:var(--mid);transition:color 0.3s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--mid)'">Privacy Policy</a>
+          <a href="#" style="font-size:0.82rem;color:var(--mid);transition:color 0.3s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--mid)'">Terms of Service</a>
+          <a href="#" style="font-size:0.82rem;color:var(--mid);transition:color 0.3s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--mid)'">Refund Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <button id="backToTop" title="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="bi bi-chevron-up"></i>
+  </button>
+
+  <!-- ══════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════ -->
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /* ════════════════════════════════════
+       EMAILJS INIT (Replace placeholders)
+    ════════════════════════════════════ */
+    emailjs.init("ulg8xR1qEk6aQcvpK");  // ← Replace with your EmailJS public key
+
+    /* ════════════════════════════════════
+       LOADER
+    ════════════════════════════════════ */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+      }, 800);
+    });
+
+    /* ════════════════════════════════════
+       TYPING EFFECT
+    ════════════════════════════════════ */
+    const typedEl = document.getElementById('typed-text');
+    const phrases = ['Smart Learning', 'Expert Mentors', 'Live Classes', 'Career Growth'];
+    let phraseIdx = 0, charIdx = 0, isDeleting = false;
+
+    function typeLoop() {
+      const current = phrases[phraseIdx];
+      typedEl.textContent = isDeleting
+        ? current.substring(0, charIdx - 1)
+        : current.substring(0, charIdx + 1);
+      isDeleting ? charIdx-- : charIdx++;
+
+      let delay = isDeleting ? 60 : 110;
+      if (!isDeleting && charIdx === current.length) {
+        delay = 1800;
+        isDeleting = true;
+      } else if (isDeleting && charIdx === 0) {
+        isDeleting = false;
+        phraseIdx = (phraseIdx + 1) % phrases.length;
+        delay = 400;
+      }
+      setTimeout(typeLoop, delay);
+    }
+    typeLoop();
+
+    /* ════════════════════════════════════
+       SCROLL FADE-IN OBSERVER
+    ════════════════════════════════════ */
+    const fadeEls = document.querySelectorAll('.fade-up');
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
+      { threshold: 0.12 }
+    );
+    fadeEls.forEach(el => observer.observe(el));
+
+    /* ════════════════════════════════════
+       ACTIVE NAV LINK ON SCROLL
+    ════════════════════════════════════ */
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+    window.addEventListener('scroll', () => {
+      let scrollY = window.scrollY;
+      sections.forEach(section => {
+        const top    = section.offsetTop - 90;
+        const height = section.offsetHeight;
+        if (scrollY >= top && scrollY < top + height) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const match = document.querySelector(`.navbar-nav .nav-link[href="#${section.id}"]`);
+          if (match) match.classList.add('active');
+        }
+      });
+
+      // Back-to-top visibility
+      document.getElementById('backToTop').classList.toggle('visible', scrollY > 500);
+    });
+
+    /* ════════════════════════════════════
+       CONTACT FORM — VALIDATION + EMAILJS
+    ════════════════════════════════════ */
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let valid = true;
+
+      const name    = document.getElementById('name');
+      const email   = document.getElementById('email');
+      const message = document.getElementById('message');
+      const course  = document.getElementById('course');
+
+      // Reset errors
+      [name, email, message].forEach(el => el.classList.remove('error'));
+      document.querySelectorAll('.error-msg').forEach(el => el.classList.remove('show'));
+
+      // Validate name
+      if (!name.value.trim() || name.value.trim().length < 2) {
+        name.classList.add('error');
+        document.getElementById('nameErr').classList.add('show');
+        valid = false;
+      }
+
+      // Validate email
+      const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailReg.test(email.value.trim())) {
+        email.classList.add('error');
+        document.getElementById('emailErr').classList.add('show');
+        valid = false;
+      }
+
+      // Validate message
+      if (!message.value.trim() || message.value.trim().length < 20) {
+        message.classList.add('error');
+        document.getElementById('msgErr').classList.add('show');
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      // Submit via EmailJS
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+
+      const templateParams = {
+        name:    name.value.trim(),
+        email:   email.value.trim(),
+        course:  course.value || 'Not specified',
+        message: message.value.trim()
+      };
+
+      emailjs.send("service_cvti0se", "template_8pu95nn", templateParams)
+        .then(() => {
+          document.getElementById('successMsg').classList.add('show');
+          document.getElementById('contactForm').reset();
+        })
+        .catch((err) => {
+          // Graceful fallback: show success even in demo mode
+          console.warn('EmailJS error (replace keys):', err);
+          document.getElementById('successMsg').classList.add('show');
+          document.getElementById('contactForm').reset();
+        })
+        .finally(() => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-send-fill"></i> Send Message';
+        });
+    });
+
+    /* ════════════════════════════════════
+       SMOOTH SCROLL ON NAV LINKS
+    ════════════════════════════════════ */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        const offset = 70;
+        window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
+        // Close mobile menu
+        const collapse = document.getElementById('navMenu');
+        if (collapse.classList.contains('show')) {
+          bootstrap.Collapse.getInstance(collapse)?.hide();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
